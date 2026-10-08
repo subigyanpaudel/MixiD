@@ -2,5 +2,8 @@ build/
 Release/
 Raw_Assets.h
 *.deb
+*.tar.gz
+*.zip
+SHA256SUMS.txt
 *.o
 *.a

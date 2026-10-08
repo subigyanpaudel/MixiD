@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import shutil
 import subprocess
 from PIL import Image
 
@@ -8,15 +9,26 @@ def generate():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     svg_path = os.path.join(base_dir, 'Assets/logo/idlogo.svg')
 
+    inkscape_cmd = shutil.which('inkscape')
+    if not inkscape_cmd and os.path.exists('/snap/bin/inkscape'):
+        inkscape_cmd = '/snap/bin/inkscape'
+    elif not inkscape_cmd and os.path.exists('/usr/bin/inkscape'):
+        inkscape_cmd = '/usr/bin/inkscape'
+
     for s in sizes:
         d = os.path.join(base_dir, f'desktop/icons/hicolor/{s}x{s}/apps')
         os.makedirs(d, exist_ok=True)
         out_png = os.path.join(d, 'id-mixer.png')
-        res = subprocess.run(['/snap/bin/inkscape', svg_path, '-o', out_png, '-w', str(s), '-h', str(s)], capture_output=True, text=True)
-        if res.returncode != 0:
-            print(f'Error rendering {s}x{s}: {res.stderr}')
+        if inkscape_cmd:
+            res = subprocess.run([inkscape_cmd, svg_path, '-o', out_png, '-w', str(s), '-h', str(s)], capture_output=True, text=True)
+            if res.returncode != 0:
+                print(f'Error rendering {s}x{s}: {res.stderr}')
+            else:
+                print(f'Rendered {out_png} ({os.path.getsize(out_png)} bytes)')
+        elif os.path.exists(out_png):
+            print(f'Inkscape not found; using existing {out_png}')
         else:
-            print(f'Rendered {out_png} ({os.path.getsize(out_png)} bytes)')
+            print(f'Warning: inkscape not found and {out_png} does not exist')
 
     # Copy scalable svg
     sc_dir = os.path.join(base_dir, 'desktop/icons/hicolor/scalable/apps')

@@ -86,21 +86,22 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/desktop/84-audient.rules
 
 # CPack Packaging configuration
 set(CPACK_PACKAGE_NAME "id-mixer")
-set(CPACK_PACKAGE_VENDOR "TheOnlyJoey")
+set(CPACK_PACKAGE_VENDOR "TheOnlyJoey, subigyanpaudel")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Unofficial Linux mixer for Audient iD series audio interfaces")
 set(CPACK_PACKAGE_VERSION "${MixiD_VERSION}")
-set(CPACK_PACKAGE_CONTACT "TheOnlyJoey <https://github.com/TheOnlyJoey/MixiD>")
+set(CPACK_PACKAGE_CONTACT "subigyanpaudel <https://github.com/subigyanpaudel/MixiD>")
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
     set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
 endif()
 
-set(CPACK_GENERATOR "DEB")
+set(CPACK_GENERATOR "DEB;TGZ")
+set(CPACK_SET_DESTDIR ON)
 set(CPACK_DEBIAN_PACKAGE_NAME "id-mixer")
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "TheOnlyJoey <https://github.com/TheOnlyJoey/MixiD>")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "subigyanpaudel <https://github.com/subigyanpaudel/MixiD>")
 set(CPACK_DEBIAN_PACKAGE_SECTION "sound")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
-set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/TheOnlyJoey/MixiD")
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/subigyanpaudel/MixiD")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
     "${CMAKE_CURRENT_SOURCE_DIR}/packaging/postinst;${CMAKE_CURRENT_SOURCE_DIR}/packaging/postrm")

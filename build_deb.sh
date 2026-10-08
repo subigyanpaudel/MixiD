@@ -13,8 +13,10 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release
 echo "==> Building iD Mixer..."
 cmake --build build -j"$(nproc)"
 
-echo "==> Packaging .deb with CPack..."
-(cd build && cpack -G DEB)
+echo "==> Packaging with CPack (DEB & TGZ)..."
+(cd build && cpack)
 
-cp build/id-mixer_*.deb ./
-echo "==> Build complete! Package generated at: $(ls -1 id-mixer_*.deb | head -n 1)"
+cp build/id-mixer_*.deb ./ 2>/dev/null || true
+cp build/id-mixer-*.tar.gz ./ 2>/dev/null || true
+echo "==> Build complete! Generated packages:"
+ls -1 id-mixer_*.deb id-mixer-*.tar.gz 2>/dev/null || true
