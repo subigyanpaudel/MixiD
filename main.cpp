@@ -24,6 +24,7 @@
 #include "driver.h"
 
 #include "Raw_Assets.h"
+#include "app_icon.h"
 
 // This example can also compile and run with Emscripten! See 'Makefile.emscripten' for details.
 #ifdef __EMSCRIPTEN__
@@ -93,11 +94,25 @@ int main(int, char**)
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
+	// Application hints for desktop integration and icon matching
+#if defined(GLFW_X11_CLASS_NAME)
+	glfwWindowHintString(GLFW_X11_CLASS_NAME, "id-mixer");
+#endif
+#if defined(GLFW_X11_INSTANCE_NAME)
+	glfwWindowHintString(GLFW_X11_INSTANCE_NAME, "id-mixer");
+#endif
+#if defined(GLFW_WAYLAND_APP_ID)
+	glfwWindowHintString(GLFW_WAYLAND_APP_ID, "id-mixer");
+#endif
+
 	// Create window with graphics context
 	float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor()); // Valid on GLFW 3.3+ only
-	GLFWwindow* window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "MixiD - Open Source Audient mixer for Linux", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "iD Mixer - Open Source Audient mixer for Linux", nullptr, nullptr);
 	if (window == nullptr)
 		return 1;
+
+	// Set window and taskbar icon
+	set_application_icon(window);
 
 	int absX = 1280 * main_scale;
 	int absY = 800 * main_scale;
@@ -145,13 +160,31 @@ int main(int, char**)
 	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	//Init all the device properties
+	// Init all the device properties
 	setup_devices();
-	//Probe for known usb devices
+	// Probe for known usb devices
 	int _dev = device_probe();
 	if (_dev >= 0) {
 		driver_indicator = _dev;
-	    bar_value.clear();
+	}
+
+	// Auto-connect by default so manual connection is not required every time
+	if (devices.size() > 0 && driver_indicator < (int)devices.size()) {
+		if (driver_init(devices[driver_indicator].usb_id)) {
+			connected = true;
+			std::cout << "[iD Mixer] Automatically connected to " << devices[driver_indicator].name 
+			          << " (0x" << std::hex << devices[driver_indicator].usb_id << ")" << std::endl;
+		} else {
+			std::cout << "[iD Mixer] Device not opened. USB interface may not be available or permissions required." << std::endl;
+		}
+	}
+
+	// Initialize channel faders and phase states
+	bar_value.clear();
+	phase_value.clear();
+	for (size_t i = 0; i < devices[driver_indicator].mic_inputs + devices[driver_indicator].digital_inputs; i++) {
+		bar_value.push_back(0.0f);
+		phase_value.push_back(false);
 	}
 
 	// Main loop
@@ -186,7 +219,7 @@ int main(int, char**)
 			static int counter = 0;
 			ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
 			ImGui::SetNextWindowSize(ImVec2(absX*0.8,absY));
-			ImGui::Begin("MixiD - Open Source Audient mixer for Linux", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBringToFrontOnFocus);
+			ImGui::Begin("iD Mixer - Open Source Audient mixer for Linux", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBringToFrontOnFocus);
 			if (ImGui::BeginMenuBar())
 			{
 				if (ImGui::BeginMenu("Menu"))
@@ -278,15 +311,27 @@ int main(int, char**)
 				name = "Disconnect";
 			
 			if (ImGui::Button(name.c_str(),ImVec2(ImGui::GetContentRegionAvail().x, 40))) {
-				connected = !connected;
 				if (connected) {
-					if (!driver_init(devices[driver_indicator].usb_id)) {
+					driver_shutdown();
+					connected = false;
+				} else {
+					int probed = device_probe();
+					if (probed >= 0) {
+						driver_indicator = probed;
+					}
+					if (driver_init(devices[driver_indicator].usb_id)) {
+						connected = true;
+						bar_value.clear();
+						phase_value.clear();
+						for (size_t i = 0; i < devices[driver_indicator].mic_inputs + devices[driver_indicator].digital_inputs; i++) {
+							bar_value.push_back(0.0f);
+							phase_value.push_back(false);
+						}
+					} else {
 						connected = false;
 						ImGui::OpenPopup("No connection possible");
-					};
+					}
 				}
-				else
-					driver_shutdown();
 			};
 		   // Always center this window when appearing
 			ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -297,7 +342,7 @@ int main(int, char**)
 				ImGui::Text("USB Device can not be opened.");
 				ImGui::Text("Make sure you have selected the correct driver and your usb permissions are correct.");
 				ImGui::Text("This can either be done by adding the usb device to the udev rules,");
-				ImGui::Text("or running MixiD with sudo permissions.");
+				ImGui::Text("or running iD Mixer with sudo permissions.");
 				ImGui::Dummy(ImVec2(10,absY*0.1));
 				ImGui::Separator();
 				if (ImGui::Button("OK", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
@@ -343,8 +388,20 @@ int main(int, char**)
 	            {
 	                const bool is_selected = (driver_indicator == n);
 	                if (ImGui::Selectable(devices[n].name.c_str(), is_selected)) {
+	                    if (connected) {
+	                        driver_shutdown();
+	                        connected = false;
+	                    }
 	                    driver_indicator = n;
 	                    bar_value.clear();
+	                    phase_value.clear();
+	                    for (size_t i = 0; i < devices[driver_indicator].mic_inputs + devices[driver_indicator].digital_inputs; i++) {
+	                        bar_value.push_back(0.0f);
+	                        phase_value.push_back(false);
+	                    }
+	                    if (driver_init(devices[driver_indicator].usb_id)) {
+	                        connected = true;
+	                    }
 	                }
 
 	                // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=iD Mixer
+GenericName=Audient iD Mixer
+Comment=Unofficial Linux mixer and control panel for Audient iD audio interfaces
+Exec=MixiD
+Icon=id-mixer
+Terminal=false
+Categories=AudioVideo;Audio;Mixer;HardwareSettings;Settings;
+Keywords=audient;id;mixer;idmixer;sound;audio;mixid;
+StartupWMClass=id-mixer
+StartupNotify=true

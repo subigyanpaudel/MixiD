@@ -1,45 +1,58 @@
 <img width="1330" height="887" alt="Screenshot From 2025-12-17 02-36-46" src="https://github.com/user-attachments/assets/af8ae915-9656-4139-ad9c-05965a8cdb66" />
 
-# MixiD
+# iD Mixer (MixiD)
 
-Unofficial Linux control panel for the Audient iD series interfaces based on libusb, glfw and imgui.
+Unofficial Linux control panel and mixer for the Audient iD series audio interfaces based on libusb, GLFW, and Dear ImGui.
 
-## Description
+## Features
 
-Since there is no official support by Audient for the iD interfaces on Linux, MixID got created as an alternative to enable the functionality not available in the default class complient USB driver.
+- **Native Linux GUI**: Lightweight, responsive interface for Audient iD series audio interfaces.
+- **Auto-Connect**: Automatically discovers and connects to your attached Audient device on startup.
+- **Desktop Integration**: App launcher (`iD Mixer`) for Ubuntu/GNOME "Show Applications" with custom icon.
+- **udev Permissions Included**: Debian package configures udev rules automatically so non-root users can access the interface directly.
 
-## Notes and To Do
+## Installation
 
-* Support list can be found [here](https://github.com/TheOnlyJoey/MixiD/wiki/Support-List)
-  * As of 17 December 2025 all known iD interfaces should be functional to some degree
-  * If a new device gets released, please add your USB iD and amount of input/output details in an [Issue](https://github.com/TheOnlyJoey/MixiD/issues) so it can be added and verified in an update.
-* The protocol is mostly figured out, just needs verification/testing
-   * Reading information back from the interfaces is still in progress.
-   * Things like VU meters and some switches/modes have yet to be implemented
-* Technically works on macOS
-   * Should probably not use on Windows
-* UI needs some additional work
-* For a complete to-do list please check the [issues](https://github.com/TheOnlyJoey/MixiD/issues)
+### Option 1: Install Debian Package (.deb)
 
-## Compilation
+If you downloaded or built the `.deb` package, install it with:
 
-### Dependencies
+```bash
+sudo dpkg -i id-mixer_0.1.6_amd64.deb
+sudo apt-get install -f  # resolves any missing dependencies
+```
 
-* CMake
+This installs:
+- The binary to `/usr/bin/MixiD` (and symlink `/usr/bin/id-mixer`)
+- Desktop entry to `/usr/share/applications/id-mixer.desktop` (searchable as "iD Mixer" in Show Applications)
+- Scalable and high-resolution icons (16x16 up to 512x512)
+- Udev rules to `/lib/udev/rules.d/84-audient.rules`
+
+### Option 2: Build & Package from Source
+
+#### Dependencies
+* CMake (>= 3.15)
 * libglew-dev
+* libglfw3-dev
+* libusb-1.0-0-dev
 * GCC or Clang
+* Inkscape (for icon generation)
 
-### Compile
-* git clone the repository
-* mkdir Release
-* cd Release
-* cmake -DCMAKE_BUILD_TYPE=Release ..
-* make
+#### Build & Create .deb
+```bash
+./build_deb.sh
+```
+Or with CMake directly:
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+(cd build && cpack -G DEB)
+```
 
 ## Usage
 
-* Either run through sudo, or setup apropriate udev rules for your interface
-* Run the MixiD executable
+* With udev rules installed (or via the `.deb` package), simply open **iD Mixer** from Ubuntu's **Show Applications** or run `MixiD` / `id-mixer` from terminal.
+* The application will automatically probe and connect to your plugged-in Audient audio interface on launch.
 
 ### udev rules
 

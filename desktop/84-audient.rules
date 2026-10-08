@@ -1,0 +1,4 @@
+# Audient iD series audio interfaces
+# Vendor ID 0x2708 (Audient)
+SUBSYSTEM=="usb", ATTR{idVendor}=="2708", MODE="0666", GROUP="audio", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="2708", MODE="0666", GROUP="audio", TAG+="uaccess"
