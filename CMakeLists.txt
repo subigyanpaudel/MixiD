@@ -64,19 +64,22 @@ include(GNUInstallDirs)
 
 # Install executable
 install(TARGETS MixiD DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(CODE "file(CREATE_LINK \"MixiD\" \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/mixid\" SYMBOLIC)")
 install(CODE "file(CREATE_LINK \"MixiD\" \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/id-mixer\" SYMBOLIC)")
 
 # Install desktop file
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/desktop/id-mixer.desktop
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/desktop/mixid.desktop
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
 
 # Install scalable SVG icon
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/desktop/icons/hicolor/scalable/apps/id-mixer.svg
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/desktop/icons/hicolor/scalable/apps/mixid.svg
+              ${CMAKE_CURRENT_SOURCE_DIR}/desktop/icons/hicolor/scalable/apps/id-mixer.svg
         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps)
 
 # Install PNG icons for each size
 foreach(SIZE 16 32 48 64 128 256 512)
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/desktop/icons/hicolor/${SIZE}x${SIZE}/apps/id-mixer.png
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/desktop/icons/hicolor/${SIZE}x${SIZE}/apps/mixid.png
+                  ${CMAKE_CURRENT_SOURCE_DIR}/desktop/icons/hicolor/${SIZE}x${SIZE}/apps/id-mixer.png
             DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${SIZE}x${SIZE}/apps)
 endforeach()
 
@@ -85,9 +88,9 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/desktop/84-audient.rules
         DESTINATION /lib/udev/rules.d)
 
 # CPack Packaging configuration
-set(CPACK_PACKAGE_NAME "id-mixer")
+set(CPACK_PACKAGE_NAME "mixid")
 set(CPACK_PACKAGE_VENDOR "TheOnlyJoey, subigyanpaudel")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Unofficial Linux mixer for Audient iD series audio interfaces")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MixID - Linux mixer and control panel for Audient iD audio interfaces")
 set(CPACK_PACKAGE_VERSION "${MixiD_VERSION}")
 set(CPACK_PACKAGE_CONTACT "subigyanpaudel <https://github.com/subigyanpaudel/MixiD>")
 if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE.md")
@@ -96,13 +99,16 @@ endif()
 
 set(CPACK_GENERATOR "DEB;TGZ")
 set(CPACK_SET_DESTDIR ON)
-set(CPACK_DEBIAN_PACKAGE_NAME "id-mixer")
+set(CPACK_DEBIAN_PACKAGE_NAME "mixid")
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "subigyanpaudel <https://github.com/subigyanpaudel/MixiD>")
 set(CPACK_DEBIAN_PACKAGE_SECTION "sound")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/subigyanpaudel/MixiD")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_REPLACES "id-mixer")
+set(CPACK_DEBIAN_PACKAGE_CONFLICTS "id-mixer")
+set(CPACK_DEBIAN_PACKAGE_PROVIDES "id-mixer")
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
     "${CMAKE_CURRENT_SOURCE_DIR}/packaging/postinst;${CMAKE_CURRENT_SOURCE_DIR}/packaging/postrm")
 

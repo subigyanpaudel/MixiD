@@ -17,9 +17,9 @@ on:
       create_release:
         description: 'Publish as GitHub Release'
         type: boolean
-        default: false
+        default: true
       tag_name:
-        description: 'Tag name for release (e.g. v0.1.6)'
+        description: 'Tag name for release (optional, e.g. v0.1.6)'
         type: string
         default: ''
 
@@ -62,77 +62,103 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
 
       - name: Build MixiD
         run: |
           cmake --build build -j$(nproc)
 
+      - name: Clean previous packages
+        run: |
+          rm -f build/*.deb build/*.tar.gz
+
       - name: Package with CPack (DEB & TGZ)
         run: |
           cd build
           cpack
-          ls -lh id-mixer*
+          ls -lh *.deb *.tar.gz
 
       - name: Generate SHA-256 Checksums
         run: |
           cd build
-          sha256sum id-mixer_*.deb id-mixer-*.tar.gz > SHA256SUMS.txt
+          sha256sum *.deb *.tar.gz > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: id-mixer-packages
+          name: mixid-packages
           path: |
-            build/id-mixer_*.deb
-            build/id-mixer-*.tar.gz
+            build/*.deb
+            build/*.tar.gz
             build/SHA256SUMS.txt
           if-no-files-found: error
 
-      - name: Determine Release Tag
-        if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.create_release == true)
+      - name: Determine Release Information
         id: release_info
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.tag_name }}" ]; then
-            TAG="${{ inputs.tag_name }}"
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          VERSION=$(python3 -c "import re; m = re.search(r'project\s*\([^)]*VERSION\s+([0-9.]+)', open('CMakeLists.txt').read(), re.DOTALL); print(m.group(1) if m else '0.1.6')")
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             TAG="${GITHUB_REF#refs/tags/}"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.tag_name }}" ]; then
+            TAG="${{ inputs.tag_name }}"
           else
-            TAG="v0.1.6-$(date +'%Y%m%d%H%M%S')"
+            TAG="v${VERSION}"
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          DEB_PATH=$(ls build/mixid_*.deb 2>/dev/null | head -n1 || ls build/*.deb | head -n1)
+          TAR_PATH=$(ls build/mixid-*.tar.gz 2>/dev/null | head -n1 || ls build/*.tar.gz | head -n1)
+          DEB_NAME=$(basename "$DEB_PATH")
+          TAR_NAME=$(basename "$TAR_PATH")
+          echo "deb_name=$DEB_NAME" >> "$GITHUB_OUTPUT"
+          echo "tar_name=$TAR_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.create_release == true)
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (inputs.create_release == true || inputs.tag_name != ''))
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.release_info.outputs.tag }}
-          name: iD Mixer ${{ steps.release_info.outputs.tag }}
+          name: MixID ${{ steps.release_info.outputs.tag }}
+          make_latest: true
           files: |
-            build/id-mixer_*.deb
-            build/id-mixer-*.tar.gz
+            build/*.deb
+            build/*.tar.gz
             build/SHA256SUMS.txt
           body: |
-            ## iD Mixer Release ${{ steps.release_info.outputs.tag }}
+            ## MixID ${{ steps.release_info.outputs.tag }}
 
-            Unofficial Linux mixer and control panel for Audient iD series audio interfaces.
+            Linux mixer and control panel for Audient iD series audio interfaces.
 
-            ### Attribution & Notes
-            - **Original Author**: Created by [@TheOnlyJoey](https://github.com/TheOnlyJoey/MixiD) (Joey Ferweda).
-            - **Packaging & Tweaks**: Packaged with desktop integration, custom icons, udev rules, and CI/CD releases by [@subigyanpaudel](https://github.com/subigyanpaudel/MixiD).
-            - Maintained with ongoing tweaks and testing on Linux systems.
+            ### 📦 Download Packages
+            - 📥 **Debian / Ubuntu Package (.deb)**: [${{ steps.release_info.outputs.deb_name }}](https://github.com/${{ github.repository }}/releases/download/${{ steps.release_info.outputs.tag }}/${{ steps.release_info.outputs.deb_name }})
+            - 📥 **Portable Linux Archive (.tar.gz)**: [${{ steps.release_info.outputs.tar_name }}](https://github.com/${{ github.repository }}/releases/download/${{ steps.release_info.outputs.tag }}/${{ steps.release_info.outputs.tar_file }})
+            - 🔒 **SHA-256 Checksums**: [SHA256SUMS.txt](https://github.com/${{ github.repository }}/releases/download/${{ steps.release_info.outputs.tag }}/SHA256SUMS.txt)
 
-            ### Quick Installation:
-            **Debian / Ubuntu / Mint (.deb)**:
+            ---
+
+            ### 🚀 Quick Installation
+
+            #### Debian / Ubuntu / Mint (.deb)
             ```bash
-            sudo apt install ./id-mixer_*_amd64.deb
+            sudo apt install ./${{ steps.release_info.outputs.deb_name }}
             # or
-            sudo dpkg -i id-mixer_*_amd64.deb && sudo apt-get install -f
+            sudo dpkg -i ./${{ steps.release_info.outputs.deb_name }} && sudo apt-get install -f
             ```
 
-            **Other Linux distributions (.tar.gz)**:
-            Extract `id-mixer-*-Linux.tar.gz` and run `usr/local/bin/MixiD` or copy files to your system prefix.
+            #### Other Linux Distributions (.tar.gz)
+            ```bash
+            tar -xzf ${{ steps.release_info.outputs.tar_name }}
+            cd mixid-*/
+            ./usr/bin/MixiD
+            ```
+
+            ---
+
+            ### Notes & Attribution
+            - **Original Author**: Created by [@TheOnlyJoey](https://github.com/TheOnlyJoey/MixiD) (Joey Ferweda).
+            - **Packaging & Desktop Tweaks**: Maintained with ongoing tweaks by [@subigyanpaudel](https://github.com/subigyanpaudel/MixiD).
           generate_release_notes: true
           draft: false
           prerelease: false

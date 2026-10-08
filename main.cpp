@@ -96,18 +96,18 @@ int main(int, char**)
 
 	// Application hints for desktop integration and icon matching
 #if defined(GLFW_X11_CLASS_NAME)
-	glfwWindowHintString(GLFW_X11_CLASS_NAME, "id-mixer");
+	glfwWindowHintString(GLFW_X11_CLASS_NAME, "MixiD");
 #endif
 #if defined(GLFW_X11_INSTANCE_NAME)
-	glfwWindowHintString(GLFW_X11_INSTANCE_NAME, "id-mixer");
+	glfwWindowHintString(GLFW_X11_INSTANCE_NAME, "MixiD");
 #endif
 #if defined(GLFW_WAYLAND_APP_ID)
-	glfwWindowHintString(GLFW_WAYLAND_APP_ID, "id-mixer");
+	glfwWindowHintString(GLFW_WAYLAND_APP_ID, "MixiD");
 #endif
 
 	// Create window with graphics context
 	float main_scale = ImGui_ImplGlfw_GetContentScaleForMonitor(glfwGetPrimaryMonitor()); // Valid on GLFW 3.3+ only
-	GLFWwindow* window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "iD Mixer - Open Source Audient mixer for Linux", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow((int)(1280 * main_scale), (int)(800 * main_scale), "MixID - Audient Mixer for Linux", nullptr, nullptr);
 	if (window == nullptr)
 		return 1;
 

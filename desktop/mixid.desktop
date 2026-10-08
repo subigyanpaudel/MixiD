@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MixID
+GenericName=Audient MixID Mixer
+Comment=Linux mixer and control panel for Audient iD audio interfaces
+Exec=MixiD
+Icon=mixid
+Terminal=false
+Categories=AudioVideo;Audio;Mixer;HardwareSettings;Settings;
+Keywords=MixID;mixid;Mixer;id-mixer;iD Mixer;audient;id;sound;audio;
+StartupWMClass=MixiD
+StartupNotify=true

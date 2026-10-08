@@ -18,7 +18,7 @@ Unofficial Linux control panel and mixer for the Audient iD series audio interfa
 
 - **Native Linux GUI**: Lightweight, responsive interface for Audient iD series audio interfaces.
 - **Auto-Connect**: Automatically discovers and connects to your attached Audient device on startup.
-- **Desktop Integration**: App launcher (`iD Mixer`) for Ubuntu/GNOME "Show Applications" with custom icon.
+- **Desktop Integration**: App launcher (`MixID`) for Ubuntu/GNOME "Show Applications" with custom icon.
 - **Ready-to-use Packaging**: Pre-built `.deb` and `.tar.gz` packages available for easy installation.
 - **udev Permissions Included**: Debian package configures udev rules automatically so non-root users can access the interface directly.
 
@@ -30,25 +30,25 @@ Unofficial Linux control panel and mixer for the Audient iD series audio interfa
 
 Pre-built packages are available on the [**Releases**](https://github.com/subigyanpaudel/MixiD/releases) page.
 
-1. Download the latest `id-mixer_*.deb` package.
+1. Download the latest `mixid_*.deb` package.
 2. Install with `apt` (which resolves dependencies automatically):
    ```bash
-   sudo apt install ./id-mixer_*_amd64.deb
+   sudo apt install ./mixid_*_amd64.deb
    ```
    *Alternatively, using `dpkg`:*
    ```bash
-   sudo dpkg -i id-mixer_*_amd64.deb
+   sudo dpkg -i mixid_*_amd64.deb
    sudo apt-get install -f  # resolves any missing dependencies
    ```
 
 This automatically installs:
-- The binary to `/usr/bin/MixiD` (and symlink `/usr/bin/id-mixer`)
-- Desktop entry to `/usr/share/applications/id-mixer.desktop` (searchable as "iD Mixer" in Show Applications)
+- The binary to `/usr/bin/MixiD` (with symlinks `/usr/bin/mixid` and `/usr/bin/id-mixer`)
+- Desktop entries `mixid.desktop` and `id-mixer.desktop` to `/usr/share/applications/` (searchable as "MixID" in Show Applications)
 - Scalable SVG and multi-resolution icons (16x16 up to 512x512)
 - Udev rules to `/lib/udev/rules.d/84-audient.rules` and reloads udev rules automatically
 
 > [!TIP]
-> **Non-Debian distributions**: Download the portable `id-mixer-*-Linux.tar.gz` archive from the Releases page, extract it, and copy or run the binary from `usr/local/bin/MixiD`.
+> **Non-Debian distributions**: Download the portable `mixid-*-Linux.tar.gz` archive from the Releases page, extract it, and copy or run the binary from `usr/local/bin/MixiD`.
 
 ---
 
@@ -81,13 +81,13 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j$(nproc)
 (cd build && cpack)
 ```
-This produces both `id-mixer_*_amd64.deb` and `id-mixer-*-Linux.tar.gz` inside the `build/` directory and project root.
+This produces both `mixid_*_amd64.deb` and `mixid-*-Linux.tar.gz` inside the `build/` directory and project root.
 
 ---
 
 ## Usage
 
-* With udev rules installed (automatically done via `.deb` package), simply open **iD Mixer** from your desktop's **Show Applications** menu or run `MixiD` / `id-mixer` from your terminal.
+* With udev rules installed (automatically done via `.deb` package), simply open **MixID** from your desktop's **Show Applications** menu or run `MixiD` / `mixid` from your terminal.
 * The application will automatically probe and connect to your plugged-in Audient audio interface on launch.
 
 ### Manual udev rules (if not using .deb)

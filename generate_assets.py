@@ -11,7 +11,7 @@ except ImportError:
 def generate():
     sizes = [16, 32, 48, 64, 128, 256, 512]
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    svg_path = os.path.join(base_dir, 'Assets/logo/idlogo.svg')
+    svg_path = os.path.join(base_dir, 'Assets/logo/MixIDlogo.svg')
 
     inkscape_cmd = shutil.which('inkscape')
     if not inkscape_cmd and os.path.exists('/snap/bin/inkscape'):
@@ -23,13 +23,16 @@ def generate():
         d = os.path.join(base_dir, f'desktop/icons/hicolor/{s}x{s}/apps')
         os.makedirs(d, exist_ok=True)
         out_png = os.path.join(d, 'id-mixer.png')
+        mixid_png = os.path.join(d, 'mixid.png')
         if inkscape_cmd:
             res = subprocess.run([inkscape_cmd, svg_path, '-o', out_png, '-w', str(s), '-h', str(s)], capture_output=True, text=True)
             if res.returncode != 0:
                 print(f'Error rendering {s}x{s}: {res.stderr}')
             else:
-                print(f'Rendered {out_png} ({os.path.getsize(out_png)} bytes)')
+                shutil.copyfile(out_png, mixid_png)
+                print(f'Rendered {out_png} and {mixid_png} ({os.path.getsize(out_png)} bytes)')
         elif os.path.exists(out_png):
+            shutil.copyfile(out_png, mixid_png)
             print(f'Inkscape not found; using existing {out_png}')
         else:
             print(f'Warning: inkscape not found and {out_png} does not exist')
@@ -37,8 +40,12 @@ def generate():
     # Copy scalable svg
     sc_dir = os.path.join(base_dir, 'desktop/icons/hicolor/scalable/apps')
     os.makedirs(sc_dir, exist_ok=True)
-    with open(svg_path, 'r') as src, open(os.path.join(sc_dir, 'id-mixer.svg'), 'w') as dst:
-        dst.write(src.read())
+    with open(svg_path, 'r') as src:
+        svg_content = src.read()
+    with open(os.path.join(sc_dir, 'id-mixer.svg'), 'w') as dst:
+        dst.write(svg_content)
+    with open(os.path.join(sc_dir, 'mixid.svg'), 'w') as dst:
+        dst.write(svg_content)
 
     app_icon_file = os.path.join(base_dir, 'app_icon.h')
     if not HAS_PIL:
