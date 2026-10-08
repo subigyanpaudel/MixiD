@@ -31,19 +31,19 @@ Unofficial Linux control panel and mixer for the Audient iD series audio interfa
 Pre-built packages are available on the [**Releases**](https://github.com/subigyanpaudel/MixiD/releases) page.
 
 1. Download the latest `mixid_*.deb` package.
-2. Install with `apt` (which resolves dependencies automatically):
+2. Install with `apt` (which automatically downloads and installs any missing runtime libraries like `libglfw3` and `libusb-1.0-0`):
    ```bash
    sudo apt install ./mixid_*_amd64.deb
    ```
    *Alternatively, using `dpkg`:*
    ```bash
    sudo dpkg -i mixid_*_amd64.deb
-   sudo apt-get install -f  # resolves any missing dependencies
+   sudo apt-get install -f  # resolves and installs any missing runtime libraries
    ```
 
 This automatically installs:
 - The binary to `/usr/bin/MixiD` (with symlinks `/usr/bin/mixid` and `/usr/bin/id-mixer`)
-- Desktop entries `mixid.desktop` and `id-mixer.desktop` to `/usr/share/applications/` (searchable as "MixID" in Show Applications)
+- Desktop entry `mixid.desktop` to `/usr/share/applications/` (searchable as "MixID" in Show Applications)
 - Scalable SVG and multi-resolution icons (16x16 up to 512x512)
 - Udev rules to `/lib/udev/rules.d/84-audient.rules` and reloads udev rules automatically
 

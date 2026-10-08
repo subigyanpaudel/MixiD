@@ -138,16 +138,35 @@ jobs:
 
             ---
 
-            ### 🚀 Quick Installation
+            ### ⚙️ Runtime Dependencies
+            MixID requires the following shared libraries to run:
+            - **`libglfw3`** (Windowing / display management)
+            - **`libusb-1.0-0`** (USB hardware communication)
+            - **`libopengl0`** (OpenGL rendering)
 
-            #### Debian / Ubuntu / Mint (.deb)
+            > **Automatic Installation with APT**:
+            > The `.deb` package specifies these dependencies in its package metadata. When you install using `sudo apt install ./${{ steps.release_info.outputs.deb_name }}`, **APT automatically resolves, downloads, and installs all required libraries for you**. No manual library setup is required!
+
+            ---
+
+            ### 🚀 Installation Instructions
+
+            #### Debian / Ubuntu / Mint (.deb) — Recommended
             ```bash
+            # Recommended (automatically fetches and installs all dependencies):
             sudo apt install ./${{ steps.release_info.outputs.deb_name }}
-            # or
-            sudo dpkg -i ./${{ steps.release_info.outputs.deb_name }} && sudo apt-get install -f
+
+            # Or via dpkg (run apt-get install -f if any dependencies are missing):
+            sudo dpkg -i ./${{ steps.release_info.outputs.deb_name }}
+            sudo apt-get install -f
             ```
 
             #### Other Linux Distributions (.tar.gz)
+            Ensure runtime libraries (`glfw`, `libusb-1.0`, OpenGL) are installed on your distribution:
+            - **Fedora**: `sudo dnf install glfw libusb1`
+            - **Arch Linux**: `sudo pacman -S glfw-x11 libusb` (or `glfw-wayland`)
+
+            Extract and run:
             ```bash
             tar -xzf ${{ steps.release_info.outputs.tar_name }}
             cd mixid-*/

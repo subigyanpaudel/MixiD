@@ -105,6 +105,7 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "subigyanpaudel <https://github.com/subigyan
 set(CPACK_DEBIAN_PACKAGE_SECTION "sound")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/subigyanpaudel/MixiD")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libglfw3, libusb-1.0-0")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_PACKAGE_REPLACES "id-mixer")
 set(CPACK_DEBIAN_PACKAGE_CONFLICTS "id-mixer")
