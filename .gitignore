@@ -7,3 +7,6 @@ Raw_Assets.h
 SHA256SUMS.txt
 *.o
 *.a
+__pycache__/
+*.pyc
+

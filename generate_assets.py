@@ -2,7 +2,11 @@
 import os
 import shutil
 import subprocess
-from PIL import Image
+try:
+    from PIL import Image
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
 
 def generate():
     sizes = [16, 32, 48, 64, 128, 256, 512]
@@ -35,6 +39,14 @@ def generate():
     os.makedirs(sc_dir, exist_ok=True)
     with open(svg_path, 'r') as src, open(os.path.join(sc_dir, 'id-mixer.svg'), 'w') as dst:
         dst.write(src.read())
+
+    app_icon_file = os.path.join(base_dir, 'app_icon.h')
+    if not HAS_PIL:
+        if os.path.exists(app_icon_file):
+            print(f'Pillow (PIL) not found; keeping existing {app_icon_file}')
+            return
+        else:
+            raise RuntimeError('Pillow (PIL) is required to generate app_icon.h. Install with: pip install pillow')
 
     # Generate app_icon.h with RGBA arrays for 16, 32, 48, 64
     header_lines = [

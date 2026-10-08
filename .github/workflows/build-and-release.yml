@@ -53,8 +53,8 @@ jobs:
             libusb-1.0-0-dev \
             libgl1-mesa-dev \
             inkscape \
-            python3-pil \
             file
+          python3 -m pip install --upgrade pillow
 
       - name: Generate assets and application icons
         run: |
